@@ -1,0 +1,17 @@
+<link rel="stylesheet" href="{{ 'kulova-widget.css' | asset_url }}">
+<div id="kulova-root"
+     data-shop="{{ shop.permanent_domain }}"
+     data-accent="{{ block.settings.accent }}"
+     data-name="{{ block.settings.bot_name }}"></div>
+<script src="{{ 'kulova-widget.js' | asset_url }}" defer></script>
+
+{% schema %}
+{
+  "name": "Kulova Chat",
+  "target": "body",
+  "settings": [
+    { "type": "text", "id": "bot_name", "label": "Bot name", "default": "Kulova" },
+    { "type": "color", "id": "accent", "label": "Accent color", "default": "#c8f25a" }
+  ]
+}
+{% endschema %}
