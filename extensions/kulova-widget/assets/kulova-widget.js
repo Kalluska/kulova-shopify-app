@@ -1,8 +1,18 @@
 (function(){
   var root=document.getElementById('kulova-root');
   if(!root)return;
+  var API='https://kulova-backend.vercel.app';
   var accent=root.dataset.accent||'#c8f25a';
   var name=root.dataset.name||'Kulova';
+  var shop=root.dataset.shop||'';
+  var sessionId=null;
+  try{
+    sessionId=localStorage.getItem('kulova-session');
+    if(!sessionId){
+      sessionId='ks_'+Date.now().toString(36)+Math.random().toString(36).substring(2,10);
+      localStorage.setItem('kulova-session',sessionId);
+    }
+  }catch(e){sessionId='ks_'+Math.random().toString(36).substring(2,15);}
   root.innerHTML=''
     +'<div class="klv-panel" id="klv-panel">'
     +'<div class="klv-head" style="background:'+accent+'">'+name+'</div>'
@@ -15,9 +25,36 @@
     +'</button>';
   var panel=document.getElementById('klv-panel');
   var msgs=document.getElementById('klv-msgs');
-  function add(t,who){var d=document.createElement('div');d.className='klv-msg '+who;d.textContent=t;msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;}
-  document.getElementById('klv-btn').onclick=function(){panel.classList.toggle('open');if(panel.classList.contains('open')&&!msgs.children.length){add('Hi! How can I help you today?','bot');}};
-  function send(){var i=document.getElementById('klv-in');var v=i.value.trim();if(!v)return;add(v,'user');i.value='';setTimeout(function(){add('(demo) Thanks — AI replies are coming soon.','bot');},400);}
+  function add(t,who,html){
+    var d=document.createElement('div');
+    d.className='klv-msg '+who;
+    if(html){d.innerHTML=t;}else{d.textContent=t;}
+    msgs.appendChild(d);
+    msgs.scrollTop=msgs.scrollHeight;
+    return d;
+  }
+  document.getElementById('klv-btn').onclick=function(){
+    panel.classList.toggle('open');
+    if(panel.classList.contains('open')&&!msgs.children.length){
+      add('Hi! How can I help you today?','bot');
+    }
+  };
+  function send(){
+    var i=document.getElementById('klv-in');
+    var v=i.value.trim();
+    if(!v)return;
+    add(v,'user');
+    i.value='';
+    var typing=add('...','bot');
+    fetch(API+'/api/chat',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({message:v,sessionId:sessionId,shopDomain:shop})
+    })
+    .then(function(r){return r.json();})
+    .then(function(d){typing.remove();add(d.reply||'Sorry, please try again.','bot',true);})
+    .catch(function(){typing.remove();add('Connection error — please try again.','bot');});
+  }
   document.getElementById('klv-send').onclick=send;
   document.getElementById('klv-in').addEventListener('keydown',function(e){if(e.key==='Enter')send();});
 })();
