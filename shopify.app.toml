@@ -2,12 +2,12 @@
 
 client_id = "af0b311431c35f77cc2c8eb17aad5bb8"
 name = "kulova-app"
-application_url = "https://example.com"
+application_url = "https://kulova-app.vercel.app"
 embedded = true
 
 [access_scopes]
 # Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
-scopes = "write_products,write_metaobjects,write_metaobject_definitions"
+scopes = "read_products,read_orders,read_customers"
 
 [product.metafields.app.demo_info]
 type = "single_line_text_field"
@@ -44,8 +44,20 @@ api_version = "2026-07"
   uri = "/webhooks/app/scopes_update"
   topics = [ "app/scopes_update" ]
 
+  [[webhooks.subscriptions]]
+  uri = "/webhooks/customers/data_request"
+  topics = [ "customers/data_request" ]
+
+  [[webhooks.subscriptions]]
+  uri = "/webhooks/customers/redact"
+  topics = [ "customers/redact" ]
+
+  [[webhooks.subscriptions]]
+  uri = "/webhooks/shop/redact"
+  topics = [ "shop/redact" ]
+
 [auth]
-redirect_urls = [ "https://example.com/api/auth" ]
+redirect_urls = [ "https://kulova-app.vercel.app/api/auth" ]
 
 [build]
 automatically_update_urls_on_dev = true
