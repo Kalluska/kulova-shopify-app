@@ -7,8 +7,9 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   console.log(`Received ${topic} webhook for ${shop}`);
   console.log("Customer redact payload:", JSON.stringify(payload));
 
-  // TODO: delete any stored conversation/customer data tied to this
-  // shop + customer id/email once the storage schema is confirmed.
+  // Kulova's chat widget never captures Shopify customer identity (id/email/phone) —
+  // conversations are keyed only by an anonymous per-visit session id, so there is no
+  // stored data linkable to this specific customer to redact.
 
   return new Response();
 };

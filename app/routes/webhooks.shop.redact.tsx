@@ -9,8 +9,20 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   console.log("Shop redact payload:", JSON.stringify(payload));
 
   await db.session.deleteMany({ where: { shop } });
-  // TODO: also delete conversation/business rows tied to this shop
-  // once the storage schema is confirmed.
+
+  // kulova-backend owns businesses/conversations/messages in the shared Supabase
+  // Postgres "public" schema (not modeled in this app's Prisma schema, which only
+  // manages Session in the isolated "shopify_app" schema) — delete them directly,
+  // scoped strictly to this shop's business row(s).
+  const businesses = await db.$queryRaw<
+    { id: string }[]
+  >`SELECT id FROM public.businesses WHERE shopify_domain = ${shop}`;
+
+  for (const { id } of businesses) {
+    await db.$executeRaw`DELETE FROM public.messages WHERE business_id = ${id}`;
+    await db.$executeRaw`DELETE FROM public.conversations WHERE business_id = ${id}`;
+    await db.$executeRaw`DELETE FROM public.businesses WHERE id = ${id}`;
+  }
 
   return new Response();
 };

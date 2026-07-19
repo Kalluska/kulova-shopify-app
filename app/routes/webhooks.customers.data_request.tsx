@@ -7,8 +7,9 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   console.log(`Received ${topic} webhook for ${shop}`);
   console.log("Customer data request payload:", JSON.stringify(payload));
 
-  // Shopify requires acknowledgment within 30 days.
-  // TODO: implement actual data export once conversation-storage schema is confirmed.
+  // Kulova's chat widget never captures Shopify customer identity (id/email/phone) —
+  // conversations are keyed only by an anonymous per-visit session id, so there is no
+  // stored data linkable to this specific customer to export.
 
   return new Response();
 };
