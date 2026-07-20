@@ -127,7 +127,9 @@ export default function Index() {
           </s-list-item>
           <s-list-item>Testaa chattia kaupassasi.</s-list-item>
           <s-list-item>
-            Botin asetukset (nimi, väri) tulossa pian tähän näkymään.
+            Botin nimi, tervehdysviesti, sijainti ja väri muokataan
+            teemaeditorin App embeds -paneelista (sama painike kuin
+            aktivointiin).
           </s-list-item>
         </s-unordered-list>
       </s-section>
