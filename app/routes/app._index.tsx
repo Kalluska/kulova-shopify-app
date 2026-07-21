@@ -125,6 +125,10 @@ export default function Index() {
           <s-list-item>
             Aktivoi Kulova-widget teemaeditorissa yllä olevasta painikkeesta.
           </s-list-item>
+          <s-list-item>
+            Käy läpi <s-link href="/app/settings">botin asetukset</s-link> —
+            esitäytetty kauppasi tiedoilla.
+          </s-list-item>
           <s-list-item>Testaa chattia kaupassasi.</s-list-item>
           <s-list-item>
             Botin nimi, tervehdysviesti, sijainti ja väri muokataan
