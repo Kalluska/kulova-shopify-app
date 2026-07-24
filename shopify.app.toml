@@ -9,8 +9,9 @@ embedded = true
 # Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
 # Reading shop { name, email, contactEmail, description, currencyCode } and the
 # Billing API both work with zero scopes — neither is gated behind an access scope.
-# v1 has no feature that reads products/orders/customers, so scopes is empty.
-scopes = ""
+# read_orders is required for the order-tracking tool (app/routes/api.order-lookup.tsx)
+# to query a shop's orders via the Admin API.
+scopes = "read_orders"
 
 [webhooks]
 api_version = "2026-07"
