@@ -58,6 +58,13 @@
   align-self:flex-end;border-bottom-right-radius:4px;
 }
 
+/* booking button (rendered as a separate DOM element, never via bot-authored HTML) */
+.klv-book-btn{
+  display:inline-block;margin-top:8px;
+  background:var(--klv-accent,#c8f25a);color:var(--klv-text-on-accent,#0a0a08);
+  padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:600;font-size:13px;
+}
+
 /* typing indicator */
 .klv-typing{display:flex;align-items:center;gap:4px;padding:12px 14px}
 .klv-typing span{width:6px;height:6px;border-radius:50%;background:#c2c2c0;animation:klv-bounce 1.2s infinite ease-in-out}

@@ -69,13 +69,25 @@
   var panel=document.getElementById('klv-panel');
   var msgs=document.getElementById('klv-msgs');
 
-  function add(t,who,html){
+  function add(t,who){
     var d=document.createElement('div');
     d.className='klv-msg '+who;
-    if(html){d.innerHTML=t;}else{d.textContent=t;}
+    d.textContent=t;
     msgs.appendChild(d);
     msgs.scrollTop=msgs.scrollHeight;
     return d;
+  }
+  // Varausnappi rakennetaan aina turvallisilla DOM-apeilla, ei koskaan botin
+  // tuottamasta HTML:sta — botti voi vain pyytää napin näyttämista, ei sisältöä.
+  function addBookingButton(url){
+    var a=document.createElement('a');
+    a.className='klv-book-btn';
+    a.href=url;
+    a.target='_blank';
+    a.rel='noopener';
+    a.textContent='Varaa aika →';
+    msgs.appendChild(a);
+    msgs.scrollTop=msgs.scrollHeight;
   }
   function addTyping(){
     var d=document.createElement('div');
@@ -106,7 +118,11 @@
       body:JSON.stringify({message:v,sessionId:sessionId,shopDomain:shop})
     })
     .then(function(r){return r.json();})
-    .then(function(d){typing.remove();add(d.reply||'Sorry, please try again.','bot',true);})
+    .then(function(d){
+      typing.remove();
+      add(d.reply||'Sorry, please try again.','bot');
+      if(d.bookingUrl){addBookingButton(d.bookingUrl);}
+    })
     .catch(function(){typing.remove();add('Connection error — please try again.','bot');});
   }
   document.getElementById('klv-send').onclick=send;
