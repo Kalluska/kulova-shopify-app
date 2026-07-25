@@ -2,7 +2,10 @@
 <div id="kulova-root"
      data-shop="{{ shop.permanent_domain }}"
      data-accent="{{ block.settings.accent }}"
-     data-name="{{ block.settings.bot_name }}"></div>
+     data-name="{{ block.settings.bot_name | escape }}"
+     data-welcome="{{ block.settings.welcome_message | escape }}"
+     data-placeholder="{{ block.settings.input_placeholder | escape }}"
+     data-position="{{ block.settings.position }}"></div>
 <script src="{{ 'kulova-widget.js' | asset_url }}" defer></script>
 
 {% schema %}
@@ -11,7 +14,19 @@
   "target": "body",
   "settings": [
     { "type": "text", "id": "bot_name", "label": "Bot name", "default": "Kulova" },
-    { "type": "color", "id": "accent", "label": "Accent color", "default": "#c8f25a" }
+    { "type": "color", "id": "accent", "label": "Accent color", "default": "#c8f25a" },
+    { "type": "text", "id": "welcome_message", "label": "Welcome message", "default": "Hi! How can I help you today?" },
+    { "type": "text", "id": "input_placeholder", "label": "Input placeholder", "default": "Type a message..." },
+    {
+      "type": "select",
+      "id": "position",
+      "label": "Widget position",
+      "options": [
+        { "value": "right", "label": "Right" },
+        { "value": "left", "label": "Left" }
+      ],
+      "default": "right"
+    }
   ]
 }
 {% endschema %}

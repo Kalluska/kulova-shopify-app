@@ -1,13 +1,103 @@
-#kulova-root{position:fixed;bottom:20px;right:20px;z-index:999999;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-.klv-btn{width:60px;height:60px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,.18)}
-.klv-btn svg{width:28px;height:28px}
-.klv-panel{position:absolute;bottom:74px;right:0;width:360px;max-width:calc(100vw - 40px);height:520px;max-height:calc(100vh - 120px);background:#fff;border-radius:16px;box-shadow:0 8px 40px rgba(0,0,0,.22);display:none;flex-direction:column;overflow:hidden}
-.klv-panel.open{display:flex}
-.klv-head{padding:16px;color:#0a0a08;font-weight:600;display:flex;align-items:center;gap:8px}
-.klv-msgs{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;background:#f7f7f5}
-.klv-msg{max-width:80%;padding:10px 14px;border-radius:14px;font-size:14px;line-height:1.4}
-.klv-msg.bot{background:#fff;align-self:flex-start;color:#1a1a1a}
-.klv-msg.user{align-self:flex-end;color:#0a0a08}
-.klv-input{display:flex;border-top:1px solid #eee;padding:10px;gap:8px}
-.klv-input input{flex:1;border:1px solid #ddd;border-radius:20px;padding:10px 14px;font-size:14px;outline:none}
-.klv-input button{border:none;border-radius:50%;width:40px;height:40px;cursor:pointer;color:#0a0a08;font-size:16px}
+#kulova-root{
+  position:fixed;bottom:20px;right:20px;z-index:999999;
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+#kulova-root[data-position="left"]{right:auto;left:20px}
+
+/* bubble button */
+.klv-btn{
+  width:60px;height:60px;border-radius:50%;border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,var(--klv-accent,#c8f25a),var(--klv-accent-dark,#a8d030));
+  color:var(--klv-text-on-accent,#0a0a08);
+  box-shadow:0 4px 16px var(--klv-accent-shadow,rgba(0,0,0,.25));
+  transition:transform 150ms ease-out,box-shadow 150ms ease-out;
+}
+.klv-btn:hover{transform:scale(1.06);box-shadow:0 8px 28px var(--klv-accent-shadow-strong,rgba(0,0,0,.35))}
+.klv-btn svg{width:26px;height:26px}
+
+/* panel */
+.klv-panel{
+  position:absolute;bottom:74px;right:0;
+  width:360px;max-width:calc(100vw - 40px);
+  height:520px;max-height:calc(100vh - 120px);
+  background:#fff;border-radius:20px;
+  box-shadow:0 10px 40px rgba(0,0,0,.12),0 2px 8px rgba(0,0,0,.08);
+  border:1px solid rgba(0,0,0,.06);
+  display:flex;flex-direction:column;overflow:hidden;
+  transform-origin:bottom right;
+  visibility:hidden;opacity:0;transform:scale(.96);
+  transition:opacity 180ms ease-out,transform 180ms ease-out,visibility 180ms;
+}
+#kulova-root[data-position="left"] .klv-panel{right:auto;left:0;transform-origin:bottom left}
+.klv-panel.open{visibility:visible;opacity:1;transform:scale(1)}
+
+/* header */
+.klv-head{
+  padding:16px;border-radius:20px 20px 0 0;
+  display:flex;align-items:center;gap:8px;
+  background:linear-gradient(135deg,var(--klv-accent,#c8f25a),var(--klv-accent-dark,#a8d030));
+  color:var(--klv-text-on-accent,#0a0a08);
+  font-size:15px;font-weight:600;
+}
+.klv-online{
+  width:8px;height:8px;border-radius:50%;background:#22c55e;
+  box-shadow:0 0 0 2px rgba(255,255,255,.35);
+  animation:klv-pulse 2.4s ease-in-out infinite;
+}
+
+/* messages */
+.klv-msgs{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;background:#fafafa}
+.klv-msg{max-width:78%;padding:10px 14px;border-radius:16px;font-size:14px;line-height:1.55;animation:klv-msg-in 150ms ease-out}
+.klv-msg.bot{
+  background:#fff;border:1px solid rgba(0,0,0,.06);box-shadow:0 1px 2px rgba(0,0,0,.04);
+  color:#1a1a1a;align-self:flex-start;border-bottom-left-radius:4px;
+}
+.klv-msg.user{
+  background:var(--klv-accent,#c8f25a);color:var(--klv-text-on-accent,#0a0a08);
+  align-self:flex-end;border-bottom-right-radius:4px;
+}
+
+/* booking button (rendered as a separate DOM element, never via bot-authored HTML) */
+.klv-book-btn{
+  display:inline-block;margin-top:8px;
+  background:var(--klv-accent,#c8f25a);color:var(--klv-text-on-accent,#0a0a08);
+  padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:600;font-size:13px;
+}
+
+/* typing indicator */
+.klv-typing{display:flex;align-items:center;gap:4px;padding:12px 14px}
+.klv-typing span{width:6px;height:6px;border-radius:50%;background:#c2c2c0;animation:klv-bounce 1.2s infinite ease-in-out}
+.klv-typing span:nth-child(2){animation-delay:.15s}
+.klv-typing span:nth-child(3){animation-delay:.3s}
+
+/* input area */
+.klv-input{display:flex;border-top:1px solid #eee;padding:10px;gap:8px;background:#fff}
+.klv-input input{
+  flex:1;border:1.5px solid #e5e5e3;border-radius:100px;padding:10px 16px;
+  font-size:14px;outline:none;transition:border-color 150ms,box-shadow 150ms;
+}
+.klv-input input:focus{
+  border-color:var(--klv-accent,#c8f25a);
+  box-shadow:0 0 0 3px var(--klv-accent-glow,rgba(200,242,90,.22));
+}
+.klv-input button{
+  border:none;border-radius:50%;width:40px;height:40px;min-width:40px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--klv-accent,#c8f25a);color:var(--klv-text-on-accent,#0a0a08);
+  transition:transform 150ms ease-out;
+}
+.klv-input button:hover{transform:scale(1.06)}
+.klv-input button svg{width:18px;height:18px}
+
+@keyframes klv-msg-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@keyframes klv-bounce{0%,60%,100%{transform:translateY(0);opacity:.5}30%{transform:translateY(-4px);opacity:1}}
+@keyframes klv-pulse{0%,100%{box-shadow:0 0 0 2px rgba(255,255,255,.35)}50%{box-shadow:0 0 0 4px rgba(255,255,255,.15)}}
+
+@media (max-width:480px){
+  .klv-btn{width:56px;height:56px}
+  .klv-panel{
+    width:calc(100vw - 24px);max-width:calc(100vw - 24px);
+    height:70vh;max-height:70vh;
+  }
+}

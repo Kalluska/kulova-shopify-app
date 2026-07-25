@@ -2,10 +2,16 @@ import "@shopify/shopify-app-react-router/adapters/node";
 import {
   ApiVersion,
   AppDistribution,
+  BillingInterval,
   shopifyApp,
 } from "@shopify/shopify-app-react-router/server";
 import { PrismaSessionStorage } from "@shopify/shopify-app-session-storage-prisma";
 import prisma from "./db.server";
+
+// Flat monthly pricing — no usage records, no per-resolution fees. Free tier
+// has no plan here and is simply the absence of an active subscription.
+export const PRO_PLAN = "Pro";
+export const COMPANY_PLAN = "Company";
 
 const shopify = shopifyApp({
   apiKey: process.env.SHOPIFY_API_KEY,
@@ -16,6 +22,26 @@ const shopify = shopifyApp({
   authPathPrefix: "/auth",
   sessionStorage: new PrismaSessionStorage(prisma),
   distribution: AppDistribution.AppStore,
+  billing: {
+    [PRO_PLAN]: {
+      lineItems: [
+        {
+          amount: 29,
+          currencyCode: "USD",
+          interval: BillingInterval.Every30Days,
+        },
+      ],
+    },
+    [COMPANY_PLAN]: {
+      lineItems: [
+        {
+          amount: 149,
+          currencyCode: "USD",
+          interval: BillingInterval.Every30Days,
+        },
+      ],
+    },
+  },
   future: {
     expiringOfflineAccessTokens: true,
   },

@@ -8,9 +8,13 @@ generator client {
 // Note that some adapters may set a maximum length for the String type by default, please ensure your strings are long
 // enough when changing adapters.
 // See https://www.prisma.io/docs/orm/reference/prisma-schema-reference#string for more information
+// Session lives in its own "shopify_app" Postgres schema so `db push` never touches
+// the kulova-backend tables (businesses, conversations, messages, login_codes) in "public".
 datasource db {
-  provider = "sqlite"
-  url      = "file:dev.sqlite"
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+  schemas   = ["shopify_app"]
 }
 
 model Session {
@@ -31,4 +35,6 @@ model Session {
   emailVerified Boolean?  @default(false)
   refreshToken        String?
   refreshTokenExpires DateTime?
+
+  @@schema("shopify_app")
 }
