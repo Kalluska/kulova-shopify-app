@@ -19,19 +19,19 @@ const PLANS = [
     id: "free",
     name: "Free",
     price: "0",
-    description: "~100 keskustelua/kk",
+    description: "~100 conversations/mo",
   },
   {
     id: "Pro",
     name: "Pro",
     price: "29",
-    description: "Enemmän keskusteluja, ei per-resoluutio-maksuja",
+    description: "More conversations, no per-resolution fees",
   },
   {
     id: "Company",
     name: "Company",
     price: "149",
-    description: "Isommille kaupoille, ei per-resoluutio-maksuja",
+    description: "For bigger stores, no per-resolution fees",
   },
 ] as const;
 
@@ -92,11 +92,10 @@ export default function Plans() {
   };
 
   return (
-    <s-page heading="Paketit">
-      <s-section heading="Valitse paketti">
+    <s-page heading="Plans">
+      <s-section heading="Choose a plan">
         <s-paragraph>
-          Flat-hinnoittelu — ei per-resoluutio-maksuja. Vaihda tai peruuta
-          milloin vain.
+          Flat pricing — no per-resolution fees. Switch or cancel anytime.
         </s-paragraph>
         <s-stack direction="inline" gap="base">
           {PLANS.map((plan) => {
@@ -111,16 +110,16 @@ export default function Plans() {
               >
                 <s-stack direction="block" gap="small">
                   <s-heading>{plan.name}</s-heading>
-                  <s-text>${plan.price}/kk</s-text>
+                  <s-text>${plan.price}/mo</s-text>
                   <s-paragraph>{plan.description}</s-paragraph>
                   {isCurrent ? (
-                    <s-badge tone="success">Käytössä</s-badge>
+                    <s-badge tone="success">Current plan</s-badge>
                   ) : (
                     <s-button
                       onClick={() => selectPlan(plan.id)}
                       {...(isSubmitting ? { loading: true } : {})}
                     >
-                      {plan.id === "free" ? "Siirry Freehen" : "Valitse"}
+                      {plan.id === "free" ? "Switch to Free" : "Select"}
                     </s-button>
                   )}
                 </s-stack>
