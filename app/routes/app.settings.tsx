@@ -75,7 +75,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
 
   if (!process.env.KULOVA_INTERNAL_KEY) {
-    return { ok: false, error: "Palvelinasetus puuttuu (KULOVA_INTERNAL_KEY)." };
+    return { ok: false, error: "Server configuration missing (KULOVA_INTERNAL_KEY)." };
   }
 
   const payload = {
@@ -96,7 +96,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   });
 
   if (!r.ok) {
-    return { ok: false, error: "Tallennus epäonnistui, yritä uudelleen." };
+    return { ok: false, error: "Save failed, please try again." };
   }
 
   return { ok: true, error: null };
@@ -110,24 +110,23 @@ export default function Settings() {
   const isSubmitting = navigation.state === "submitting";
 
   return (
-    <s-page heading="Botin asetukset">
-      <s-section heading="Yrityksen tiedot">
+    <s-page heading="Bot settings">
+      <s-section heading="Business information">
         {prefilled && (
-          <s-banner tone="info" heading="Esitäytetty kauppasi Shopify-tiedoilla">
+          <s-banner tone="info" heading="Pre-filled with your store's Shopify information">
             <s-paragraph>
-              Tarkista ja muokkaa vapaasti ennen tallennusta — nämä tiedot
-              auttavat bottia vastaamaan asiakkaillesi oikein heti alusta
-              alkaen.
+              Review and edit freely before saving — this information helps
+              the bot answer your customers correctly right from the start.
             </s-paragraph>
           </s-banner>
         )}
         {actionData?.ok && (
-          <s-banner tone="success" heading="Tallennettu">
-            <s-paragraph>Botin asetukset päivitetty.</s-paragraph>
+          <s-banner tone="success" heading="Saved">
+            <s-paragraph>Bot settings updated.</s-paragraph>
           </s-banner>
         )}
         {actionData?.ok === false && (
-          <s-banner tone="critical" heading="Virhe">
+          <s-banner tone="critical" heading="Error">
             <s-paragraph>{actionData.error}</s-paragraph>
           </s-banner>
         )}
@@ -136,48 +135,48 @@ export default function Settings() {
           <s-stack direction="block" gap="base">
             <s-text-area
               name="services"
-              label="Kuvaus / palvelut"
-              details="Mitä kauppa myy tai tarjoaa. Botti käyttää tätä vastatakseen kysymyksiin."
+              label="Description / services"
+              details="What your store sells or offers. The bot uses this to answer questions."
               defaultValue={services}
               rows={4}
             />
             <s-text-field
               name="hours"
-              label="Aukioloajat"
-              placeholder="esim. Ma-Pe 9-17"
+              label="Opening hours"
+              placeholder="e.g. Mon-Fri 9am-5pm"
               defaultValue={hours}
             />
             <s-text-area
               name="botInstructions"
-              label="Botin lisäohjeet"
-              details="Valinnainen. Nämä ohittavat yllä olevat, jos ristiriitaa."
+              label="Additional bot instructions"
+              details="Optional. These take priority over the above if there's a conflict."
               defaultValue={botInstructions}
               rows={3}
             />
             <s-email-field
               name="supportEmail"
-              label="Tukisähköposti"
-              details="Tähän botti ohjaa asiakkaan, jos se ei osaa vastata kysymykseen."
+              label="Support email"
+              details="The bot directs customers here when it can't answer a question."
               defaultValue={supportEmail}
             />
             {currency && (
-              <s-paragraph>Kaupan valuutta: {currency}</s-paragraph>
+              <s-paragraph>Store currency: {currency}</s-paragraph>
             )}
             <s-button
               type="submit"
               variant="primary"
               {...(isSubmitting ? { loading: true } : {})}
             >
-              Tallenna
+              Save
             </s-button>
           </s-stack>
         </Form>
       </s-section>
 
-      <s-section slot="aside" heading="Muualla muokattavat">
+      <s-section slot="aside" heading="Edited elsewhere">
         <s-paragraph>
-          Botin nimi, tervehdysviesti, väri ja widgetin sijainti muokataan
-          teemaeditorin App embeds -paneelista.
+          The bot name, welcome message, color, and widget position are
+          edited in the theme editor's App embeds panel.
         </s-paragraph>
       </s-section>
     </s-page>

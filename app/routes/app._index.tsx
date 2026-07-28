@@ -90,57 +90,57 @@ export default function Index() {
   return (
     <s-page heading="Kulova">
       <s-button slot="primary-action" href={activateUrl} target="_blank">
-        Aktivoi widget teemaeditorissa
+        Activate widget in theme editor
       </s-button>
 
-      <s-section heading={`Tervetuloa, ${shop}`}>
+      <s-section heading={`Welcome, ${shop}`}>
         <s-paragraph>
-          Kulova on tekoälypohjainen asiakaspalvelu-chat kaupallesi. Aktivoi
-          widget teemaasi yllä olevasta painikkeesta, niin botti alkaa
-          vastata asiakkaidesi kysymyksiin heti.
+          Kulova is an AI-powered customer support chat for your store.
+          Activate the widget in your theme using the button above, and the
+          bot will start answering your customers' questions right away.
         </s-paragraph>
 
         {syncError && (
-          <s-banner tone="warning" heading="Tilin synkronointi epäonnistui">
+          <s-banner tone="warning" heading="Account sync failed">
             <s-paragraph>
-              Emme juuri nyt saaneet yhteyttä Kulovan taustapalveluun. Voit
-              silti aktivoida widgetin — synkronointi yritetään uudelleen
-              seuraavan kerran kun avaat tämän sivun.
+              We couldn't reach Kulova's backend just now. You can still
+              activate the widget — sync will be retried the next time you
+              open this page.
             </s-paragraph>
           </s-banner>
         )}
 
         {business && (
           <s-paragraph>
-            Botin nimi: {business.bot_name} · Tila:{" "}
+            Bot name: {business.bot_name} · Status:{" "}
             <s-badge tone={business.is_active ? "success" : "neutral"}>
-              {business.is_active ? "aktiivinen" : "ei aktiivinen"}
+              {business.is_active ? "active" : "inactive"}
             </s-badge>
           </s-paragraph>
         )}
       </s-section>
 
-      <s-section slot="aside" heading="Seuraavaksi">
+      <s-section slot="aside" heading="Next steps">
         <s-unordered-list>
           <s-list-item>
-            Aktivoi Kulova-widget teemaeditorissa yllä olevasta painikkeesta.
+            Activate the Kulova widget in the theme editor using the button
+            above.
           </s-list-item>
           <s-list-item>
-            Käy läpi <s-link href="/app/settings">botin asetukset</s-link> —
-            esitäytetty kauppasi tiedoilla.
+            Go through your <s-link href="/app/settings">bot settings</s-link>{" "}
+            — pre-filled with your store's information.
           </s-list-item>
-          <s-list-item>Testaa chattia kaupassasi.</s-list-item>
+          <s-list-item>Test the chat in your store.</s-list-item>
           <s-list-item>
-            Botin nimi, tervehdysviesti, sijainti ja väri muokataan
-            teemaeditorin App embeds -paneelista (sama painike kuin
-            aktivointiin).
+            The bot name, welcome message, position, and color are edited in
+            the theme editor's App embeds panel (same button as activation).
           </s-list-item>
         </s-unordered-list>
       </s-section>
 
-      <s-section slot="aside" heading="Paketti">
-        <s-paragraph>Nykyinen paketti: {currentPlan}</s-paragraph>
-        <s-link href="/app/plans">Hallinnoi tilausta</s-link>
+      <s-section slot="aside" heading="Plan">
+        <s-paragraph>Current plan: {currentPlan}</s-paragraph>
+        <s-link href="/app/plans">Manage subscription</s-link>
       </s-section>
     </s-page>
   );
