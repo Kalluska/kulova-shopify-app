@@ -2,6 +2,7 @@ import type { HeadersFunction, LoaderFunctionArgs } from "react-router";
 import { useLoaderData } from "react-router";
 import { authenticate, PRO_PLAN, COMPANY_PLAN } from "../shopify.server";
 import { boundary } from "@shopify/shopify-app-react-router/server";
+import { planFromSubscriptionName, syncPlan, PLAN_LIMITS } from "../kulova-backend.server";
 
 const isTest = process.env.SHOPIFY_BILLING_TEST_MODE !== "false";
 
@@ -17,7 +18,10 @@ type Business = {
   id: string;
   bot_name: string;
   is_active: boolean;
+  plan?: string;
 };
+
+type Usage = { plan: string; conversationsThisMonth: number; limit: number };
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { admin, session, billing } = await authenticate.admin(request);
@@ -42,6 +46,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const shopEmail = shopJson.data?.shop?.email as string | undefined;
 
   let business: Business | null = null;
+  let usage: Usage | null = null;
   let syncError = false;
 
   if (process.env.KULOVA_INTERNAL_KEY) {
@@ -64,6 +69,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       if (syncResponse.ok) {
         const syncJson = await syncResponse.json();
         business = syncJson.business ?? null;
+        usage = syncJson.usage ?? null;
       } else {
         syncError = true;
       }
@@ -74,9 +80,20 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     syncError = true;
   }
 
+  // Self-heal: Shopify Billing is the source of truth for the plan. If the backend's
+  // copy drifted (missed webhook, first load after upgrade), correct it now so the
+  // chat bot enforces the right monthly limit.
+  const billedPlan = planFromSubscriptionName(appSubscriptions[0]?.name);
+  if (business && business.plan !== billedPlan) {
+    await syncPlan(session.shop, billedPlan);
+    business.plan = billedPlan;
+    if (usage) usage = { ...usage, plan: billedPlan, limit: PLAN_LIMITS[billedPlan] };
+  }
+
   return {
     shop: session.shop,
     business,
+    usage,
     syncError,
     currentPlan,
     activateUrl: `https://${session.shop}/admin/themes/current/editor?context=apps&activateAppId=${WIDGET_ACTIVATE_ID}`,
@@ -84,8 +101,10 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 };
 
 export default function Index() {
-  const { shop, business, syncError, currentPlan, activateUrl } =
+  const { shop, business, usage, syncError, currentPlan, activateUrl } =
     useLoaderData<typeof loader>();
+  const nearLimit = usage ? usage.conversationsThisMonth >= usage.limit * 0.8 : false;
+  const atLimit = usage ? usage.conversationsThisMonth >= usage.limit : false;
 
   return (
     <s-page heading="Kulova">
@@ -140,6 +159,23 @@ export default function Index() {
 
       <s-section slot="aside" heading="Plan">
         <s-paragraph>Current plan: {currentPlan}</s-paragraph>
+        {usage && (
+          <s-paragraph>
+            Conversations this month: {usage.conversationsThisMonth.toLocaleString("en-US")} /{" "}
+            {usage.limit.toLocaleString("en-US")}
+          </s-paragraph>
+        )}
+        {atLimit ? (
+          <s-banner tone="critical" heading="Monthly limit reached">
+            <s-paragraph>
+              New chats show your support email until next month. Upgrade to keep the bot answering.
+            </s-paragraph>
+          </s-banner>
+        ) : nearLimit ? (
+          <s-banner tone="warning" heading="Approaching monthly limit">
+            <s-paragraph>You've used over 80% of this month's conversations.</s-paragraph>
+          </s-banner>
+        ) : null}
         <s-link href="/app/plans">Manage subscription</s-link>
       </s-section>
     </s-page>

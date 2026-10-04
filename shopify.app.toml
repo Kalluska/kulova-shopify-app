@@ -1,7 +1,7 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
 client_id = "af0b311431c35f77cc2c8eb17aad5bb8"
-name = "kulova-app"
+name = "Kulova"
 application_url = "https://kulova-app.vercel.app"
 embedded = true
 
@@ -11,7 +11,8 @@ embedded = true
 # Billing API both work with zero scopes — neither is gated behind an access scope.
 # read_orders is required for the order-tracking tool (app/routes/api.order-lookup.tsx)
 # to query a shop's orders via the Admin API.
-scopes = "read_orders"
+# read_products powers the bot's product search tool (app/routes/api.product-search.tsx).
+scopes = "read_orders,read_products"
 
 [webhooks]
 api_version = "2026-07"
@@ -19,6 +20,10 @@ api_version = "2026-07"
   [[webhooks.subscriptions]]
   uri = "/webhooks/app/uninstalled"
   topics = [ "app/uninstalled" ]
+
+  [[webhooks.subscriptions]]
+  uri = "/webhooks/app/subscriptions_update"
+  topics = [ "app_subscriptions/update" ]
 
   [[webhooks.subscriptions]]
   uri = "/webhooks/app/scopes_update"
