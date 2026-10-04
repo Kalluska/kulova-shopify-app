@@ -6,6 +6,7 @@ import type {
 import { useLoaderData, useNavigation, useSubmit } from "react-router";
 import { authenticate, PRO_PLAN, COMPANY_PLAN } from "../shopify.server";
 import { boundary } from "@shopify/shopify-app-react-router/server";
+import { planFromSubscriptionName, syncPlan } from "../kulova-backend.server";
 
 // Shopify blocks real charges on dev/trial stores regardless of this flag,
 // but it must be flipped to "false" (via env var) before charging live merchants.
@@ -19,24 +20,24 @@ const PLANS = [
     id: "free",
     name: "Free",
     price: "0",
-    description: "~100 conversations/mo",
+    description: "100 conversations/month",
   },
   {
     id: "Pro",
     name: "Pro",
     price: "29",
-    description: "More conversations, no per-resolution fees",
+    description: "1,000 conversations/month",
   },
   {
     id: "Company",
     name: "Company",
     price: "149",
-    description: "For bigger stores, no per-resolution fees",
+    description: "10,000 conversations/month",
   },
 ] as const;
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const { billing } = await authenticate.admin(request);
+  const { billing, session } = await authenticate.admin(request);
 
   const { appSubscriptions } = await billing.check({
     plans: [PRO_PLAN, COMPANY_PLAN],
@@ -46,11 +47,15 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const currentPlan = appSubscriptions[0]?.name ?? "free";
   const currentSubscriptionId = appSubscriptions[0]?.id;
 
+  // This page is the billing returnUrl, so it's the first thing a merchant sees after
+  // approving a charge: sync the plan immediately instead of waiting for the webhook.
+  await syncPlan(session.shop, planFromSubscriptionName(appSubscriptions[0]?.name));
+
   return { currentPlan, currentSubscriptionId };
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  const { billing } = await authenticate.admin(request);
+  const { billing, session } = await authenticate.admin(request);
   const formData = await request.formData();
   const plan = formData.get("plan");
 
@@ -77,7 +82,10 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   return billing.request({
     plan,
     isTest,
-    returnUrl: `${process.env.SHOPIFY_APP_URL}/app/plans`,
+    // Must be the embedded admin URL. A bare `${SHOPIFY_APP_URL}/app/plans` loads the app
+    // top-level, outside the admin iframe, where there is no session -> /auth/login page
+    // (seen in the screencast run 2026-10-04 after approving a charge).
+    returnUrl: `https://admin.shopify.com/store/${session.shop.replace(".myshopify.com", "")}/apps/${process.env.SHOPIFY_APP_HANDLE || "kulova-app"}/app/plans`,
   });
 };
 
